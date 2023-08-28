@@ -35,7 +35,6 @@ class BertClassifierWithPooling(BertClassifier):
         chunk_size: int,
         stride: int,
         minimal_chunk_length: int,
-        num_classes: int, # Added num_classes
         pooling_strategy: str = "mean",
         maximal_text_length: Optional[int] = None,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
@@ -54,8 +53,6 @@ class BertClassifierWithPooling(BertClassifier):
             device,
             many_gpus,
         )
-        
-        self.num_classes = num_classes
 
         self.chunk_size = chunk_size
         self.stride = stride
