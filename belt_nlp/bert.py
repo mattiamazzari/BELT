@@ -33,6 +33,7 @@ class BertClassifier(ABC):
         batch_size: int,
         learning_rate: float,
         epochs: int,
+        num_classes: int = 3,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
         neural_network: Optional[Module] = None,
         pretrained_model_name_or_path: Optional[str] = "bert-base-uncased",
@@ -43,7 +44,9 @@ class BertClassifier(ABC):
             tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
         if not neural_network:
             bert = AutoModel.from_pretrained(pretrained_model_name_or_path)
-            neural_network = BertClassifierNN(bert)
+            neural_network = BertClassifierNN(bert, num_classes)
+            
+        self.num_classes = num_classes
 
         self.batch_size = batch_size
         self.learning_rate = learning_rate
@@ -158,12 +161,12 @@ class BertClassifier(ABC):
 
 
 class BertClassifierNN(Module):
-    def __init__(self, model: Union[BertModel, RobertaModel]):
+    def __init__(self, model: Union[BertModel, RobertaModel], num_classes: int):
         super().__init__()
         self.model = model
 
         # classification head
-        self.linear = Linear(768, 3)
+        self.linear = Linear(768, num_classes)
         #self.sigmoid = Sigmoid()
 
     def forward(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
