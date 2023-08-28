@@ -32,7 +32,6 @@ class BertClassifierWithPooling(BertClassifier):
         batch_size: int,
         learning_rate: float,
         epochs: int,
-        num_classes: int,
         chunk_size: int,
         stride: int,
         minimal_chunk_length: int,
@@ -48,7 +47,6 @@ class BertClassifierWithPooling(BertClassifier):
             batch_size,
             learning_rate,
             epochs,
-            num_classes,
             tokenizer,
             neural_network,
             pretrained_model_name_or_path,
@@ -56,8 +54,6 @@ class BertClassifierWithPooling(BertClassifier):
             many_gpus,
         )
         
-        self.num_classes = num_classes
-
         self.chunk_size = chunk_size
         self.stride = stride
         self.minimal_chunk_length = minimal_chunk_length
