@@ -84,14 +84,16 @@ class BertClassifier(ABC):
         if not batch_size:
             batch_size = self.batch_size
         scores = self.predict_scores(x, batch_size)
-        classes = [i >= 0.5 for i in scores]
+        #classes = [i >= 0.5 for i in scores]
+        classes = [torch.argmax(torch.tensor(score)) for score in scores]
         return classes
 
     def predict_scores(self, x: list[str], batch_size: Optional[int] = None) -> list[float]:
         if not batch_size:
             batch_size = self.batch_size
         tokens = self._tokenize(x)
-        dataset = TokenizedDataset(tokens)
+        #dataset = TokenizedDataset(tokens)
+        dataset = TokenizedDataset(tokens, labels=[0] * len(x))  # Placeholder labels
         dataloader = DataLoader(
             dataset, sampler=SequentialSampler(dataset), batch_size=batch_size, collate_fn=self.collate_fn
         )
@@ -112,14 +114,14 @@ class BertClassifier(ABC):
 
     def _train_single_epoch(self, dataloader: DataLoader, optimizer: Optimizer) -> None:
         self.neural_network.train()
-        cross_entropy = BCELoss()
+        #cross_entropy = BCELoss()
+        cross_entropy = nn.CrossEntropyLoss() # for multi-class classification
 
         for step, batch in enumerate(dataloader):
             optimizer.zero_grad()
-            labels = batch[-1].float().cpu()
-            predictions = self._evaluate_single_batch(batch)
-
-            loss = cross_entropy(predictions, labels)
+            input_ids, attention_mask, labels = batch
+            logits = self._evaluate_single_batch((input_ids, attention_mask))
+            loss = cross_entropy(logits, labels)
             loss.backward()
             optimizer.step()
 
@@ -161,8 +163,8 @@ class BertClassifierNN(Module):
         self.model = model
 
         # classification head
-        self.linear = Linear(768, 1)
-        self.sigmoid = Sigmoid()
+        self.linear = Linear(768, 3)
+        #self.sigmoid = Sigmoid()
 
     def forward(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
         x = self.model(input_ids, attention_mask)
@@ -170,14 +172,14 @@ class BertClassifierNN(Module):
 
         # classification head
         x = self.linear(x)
-        x = self.sigmoid(x)
+        #x = self.sigmoid(x)
         return x
 
 
 class TokenizedDataset(Dataset):
     """Dataset for tokens with optional labels."""
 
-    def __init__(self, tokens: BatchEncoding, labels: Optional[list] = None):
+    def __init__(self, tokens: BatchEncoding, labels: list[int]):
         self.input_ids = tokens["input_ids"]
         self.attention_mask = tokens["attention_mask"]
         self.labels = labels
