@@ -53,7 +53,7 @@ class BertClassifierWithPooling(BertClassifier):
             device,
             many_gpus,
         )
-        
+
         self.chunk_size = chunk_size
         self.stride = stride
         self.minimal_chunk_length = minimal_chunk_length
