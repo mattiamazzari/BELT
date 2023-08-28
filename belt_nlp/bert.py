@@ -33,7 +33,7 @@ class BertClassifier(ABC):
         batch_size: int,
         learning_rate: float,
         epochs: int,
-        num_classes: int = 3,
+        num_classes: int,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
         neural_network: Optional[Module] = None,
         pretrained_model_name_or_path: Optional[str] = "bert-base-uncased",
@@ -164,6 +164,7 @@ class BertClassifierNN(Module):
     def __init__(self, model: Union[BertModel, RobertaModel], num_classes: int):
         super().__init__()
         self.model = model
+        self.num_classes = num_classes
 
         # classification head
         self.linear = Linear(768, num_classes)
