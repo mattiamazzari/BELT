@@ -33,7 +33,6 @@ class BertClassifier(ABC):
         batch_size: int,
         learning_rate: float,
         epochs: int,
-        num_classes: int,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
         neural_network: Optional[Module] = None,
         pretrained_model_name_or_path: Optional[str] = "bert-base-uncased",
@@ -44,7 +43,7 @@ class BertClassifier(ABC):
             tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
         if not neural_network:
             bert = AutoModel.from_pretrained(pretrained_model_name_or_path)
-            neural_network = BertClassifierNN(bert, num_classes)
+            neural_network = BertClassifierNN(bert)
 
         self.batch_size = batch_size
         self.learning_rate = learning_rate
@@ -85,8 +84,7 @@ class BertClassifier(ABC):
         if not batch_size:
             batch_size = self.batch_size
         scores = self.predict_scores(x, batch_size)
-        #classes = [i >= 0.5 for i in scores]
-        classes = [torch.argmax(score).item() for score in scores]
+        classes = [i >= 0.5 for i in scores]
         return classes
 
     def predict_scores(self, x: list[str], batch_size: Optional[int] = None) -> list[float]:
