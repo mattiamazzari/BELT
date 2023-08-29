@@ -156,12 +156,12 @@ class BertClassifier(ABC):
 
 
 class BertClassifierNN(Module):
-    def __init__(self, model: Union[BertModel, RobertaModel]):
+    def __init__(self, model: Union[BertModel, RobertaModel], num_classes: int = 3):
         super().__init__()
         self.model = model
 
         # classification head
-        self.linear = Linear(768, 1)
+        self.linear = Linear(768, num_classes)
         self.sigmoid = Sigmoid()
 
     def forward(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
