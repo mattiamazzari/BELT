@@ -10,6 +10,7 @@ from torch.nn import BCELoss, DataParallel, Module, Linear, Sigmoid
 from torch.optim import AdamW, Optimizer
 from torch.utils.data import Dataset, RandomSampler, SequentialSampler, DataLoader
 from transformers import AutoModel, AutoTokenizer, BatchEncoding, BertModel, PreTrainedTokenizerBase, RobertaModel
+from torch.nn import functional as F
 
 
 class BertClassifier(ABC):
@@ -77,14 +78,16 @@ class BertClassifier(ABC):
         if not batch_size:
             batch_size = self.batch_size
         scores = self.predict_scores(x, batch_size)
-        classes = [i >= 0.5 for i in scores]
+        #classes = [i >= 0.5 for i in scores]
+        classes = [torch.argmax(torch.tensor(score)).item() for score in scores]
         return list(zip(classes, scores))
 
     def predict_classes(self, x: list[str], batch_size: Optional[int] = None) -> list[bool]:
         if not batch_size:
             batch_size = self.batch_size
         scores = self.predict_scores(x, batch_size)
-        classes = [i >= 0.5 for i in scores]
+        #classes = [i >= 0.5 for i in scores]
+        classes = [torch.argmax(torch.tensor(score)).item() for score in scores]
         return classes
 
     def predict_scores(self, x: list[str], batch_size: Optional[int] = None) -> list[float]:
@@ -112,12 +115,12 @@ class BertClassifier(ABC):
 
     def _train_single_epoch(self, dataloader: DataLoader, optimizer: Optimizer) -> None:
         self.neural_network.train()
-        cross_entropy = BCELoss()
-        #cross_entropy = torch.nn.CrossEntropyLoss()
+        #cross_entropy = BCELoss()
+        cross_entropy = torch.nn.CrossEntropyLoss()
 
         for step, batch in enumerate(dataloader):
             optimizer.zero_grad()
-            labels = batch[-1].float().cpu()
+            labels = batch[-1].long().cpu()
             predictions = self._evaluate_single_batch(batch)
             loss = cross_entropy(predictions, labels)
             loss.backward()
@@ -156,13 +159,13 @@ class BertClassifier(ABC):
 
 
 class BertClassifierNN(Module):
-    def __init__(self, model: Union[BertModel, RobertaModel], num_classes: int = 1):
+    def __init__(self, model: Union[BertModel, RobertaModel]):
         super().__init__()
         self.model = model
 
         # classification head
-        self.linear = Linear(768, num_classes)
-        self.sigmoid = Sigmoid()
+        self.linear = Linear(768, 3)
+        #self.sigmoid = Sigmoid()
 
     def forward(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
         x = self.model(input_ids, attention_mask)
@@ -170,7 +173,8 @@ class BertClassifierNN(Module):
 
         # classification head
         x = self.linear(x)
-        x = self.sigmoid(x)
+        #x = self.sigmoid(x)
+        x = F.softmax(x, dim=-1)  # Apply softmax along the class dimension
         return x
 
 
