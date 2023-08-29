@@ -97,9 +97,8 @@ class BertClassifierWithPooling(BertClassifier):
         )
         return tokens
 
-    def _evaluate_single_batch(self, batch: tuple[Tensor]) -> Tensor:
-        input_ids = batch[0]
-        attention_mask = batch[1]
+    def _evaluate_single_batch(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
+
         number_of_chunks = [len(x) for x in input_ids]
 
         # concatenate all input_ids into one batch
