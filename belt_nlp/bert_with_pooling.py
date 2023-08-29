@@ -130,8 +130,8 @@ class BertClassifierWithPooling(BertClassifier):
         print(f"number_of_chunks.shape: {len(number_of_chunks)}")
         print(f"input_ids_combined_tensors.shape: {input_ids_combined_tensors.shape}")
         print(f"attention_mask_combined_tensors.shape: {attention_mask_combined_tensors.shape}")
-        print(f"input_ids shape: {input_ids.shape}")
-        print(f"attention_mask shape: {attention_mask.shape}")
+        print(f"input_ids len: {len(input_ids)}")
+        print(f"attention_mask len: {len(attention_mask)}")
 
         # split result preds into chunks
 
