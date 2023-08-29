@@ -32,7 +32,6 @@ class BertClassifierWithPooling(BertClassifier):
         batch_size: int,
         learning_rate: float,
         epochs: int,
-        num_classes: int,
         chunk_size: int,
         stride: int,
         minimal_chunk_length: int,
@@ -48,7 +47,6 @@ class BertClassifierWithPooling(BertClassifier):
             batch_size,
             learning_rate,
             epochs,
-            num_classes,
             tokenizer,
             neural_network,
             pretrained_model_name_or_path,
@@ -124,14 +122,6 @@ class BertClassifierWithPooling(BertClassifier):
         preds = self.neural_network(input_ids_combined_tensors, attention_mask_combined_tensors)
 
         preds = preds.flatten().cpu()
-        
-        print(f"preds.shape: {preds.shape}")
-        print(f"number_of_chunks: {number_of_chunks}")
-        print(f"number_of_chunks.shape: {len(number_of_chunks)}")
-        print(f"input_ids_combined_tensors.shape: {input_ids_combined_tensors.shape}")
-        print(f"attention_mask_combined_tensors.shape: {attention_mask_combined_tensors.shape}")
-        print(f"input_ids len: {len(input_ids)}")
-        print(f"attention_mask len: {len(attention_mask)}")
 
         # split result preds into chunks
 

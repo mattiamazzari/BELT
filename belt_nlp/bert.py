@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 
 import torch
 from torch import Tensor
-from torch.nn import BCELoss, DataParallel, Module, Linear, Sigmoid, CrossEntropyLoss
+from torch.nn import BCELoss, DataParallel, Module, Linear, Sigmoid
 from torch.optim import AdamW, Optimizer
 from torch.utils.data import Dataset, RandomSampler, SequentialSampler, DataLoader
 from transformers import AutoModel, AutoTokenizer, BatchEncoding, BertModel, PreTrainedTokenizerBase, RobertaModel
@@ -33,7 +33,6 @@ class BertClassifier(ABC):
         batch_size: int,
         learning_rate: float,
         epochs: int,
-        num_classes: int,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
         neural_network: Optional[Module] = None,
         pretrained_model_name_or_path: Optional[str] = "bert-base-uncased",
@@ -44,7 +43,7 @@ class BertClassifier(ABC):
             tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
         if not neural_network:
             bert = AutoModel.from_pretrained(pretrained_model_name_or_path)
-            neural_network = BertClassifierNN(bert, num_classes)
+            neural_network = BertClassifierNN(bert)
 
         self.batch_size = batch_size
         self.learning_rate = learning_rate
@@ -113,8 +112,7 @@ class BertClassifier(ABC):
 
     def _train_single_epoch(self, dataloader: DataLoader, optimizer: Optimizer) -> None:
         self.neural_network.train()
-        #cross_entropy = BCELoss()
-        cross_entropy = CrossEntropyLoss()
+        cross_entropy = BCELoss()
 
         for step, batch in enumerate(dataloader):
             optimizer.zero_grad()
@@ -158,13 +156,13 @@ class BertClassifier(ABC):
 
 
 class BertClassifierNN(Module):
-    def __init__(self, model: Union[BertModel, RobertaModel], num_classes: int):
+    def __init__(self, model: Union[BertModel, RobertaModel]):
         super().__init__()
         self.model = model
 
         # classification head
-        self.linear = Linear(768, num_classes)
-        #self.sigmoid = Sigmoid()
+        self.linear = Linear(768, 1)
+        self.sigmoid = Sigmoid()
 
     def forward(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
         x = self.model(input_ids, attention_mask)
@@ -172,7 +170,7 @@ class BertClassifierNN(Module):
 
         # classification head
         x = self.linear(x)
-        #x = self.sigmoid(x)
+        x = self.sigmoid(x)
         return x
 
 
