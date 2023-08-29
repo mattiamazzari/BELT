@@ -112,13 +112,13 @@ class BertClassifier(ABC):
 
     def _train_single_epoch(self, dataloader: DataLoader, optimizer: Optimizer) -> None:
         self.neural_network.train()
-        cross_entropy = BCELoss()
+        #cross_entropy = BCELoss()
+        cross_entropy = torch.nn.CrossEntropyLoss()
 
         for step, batch in enumerate(dataloader):
             optimizer.zero_grad()
             labels = batch[-1].float().cpu()
             predictions = self._evaluate_single_batch(batch)
-
             loss = cross_entropy(predictions, labels)
             loss.backward()
             optimizer.step()
