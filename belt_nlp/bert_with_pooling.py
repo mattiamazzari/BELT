@@ -124,6 +124,14 @@ class BertClassifierWithPooling(BertClassifier):
         preds = self.neural_network(input_ids_combined_tensors, attention_mask_combined_tensors)
 
         preds = preds.flatten().cpu()
+        
+        print(f"preds.shape: {preds.shape}")
+        print(f"number_of_chunks: {number_of_chunks}")
+        print(f"number_of_chunks.shape: {len(number_of_chunks)}")
+        print(f"input_ids_combined_tensors.shape: {input_ids_combined_tensors.shape}")
+        print(f"attention_mask_combined_tensors.shape: {attention_mask_combined_tensors.shape}")
+        print(f"input_ids shape: {input_ids.shape}")
+        print(f"attention_mask shape: {attention_mask.shape}")
 
         # split result preds into chunks
 
