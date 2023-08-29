@@ -139,6 +139,7 @@ class BertClassifierWithPooling(BertClassifier):
 
         return pooled_preds
 
+    """
     @staticmethod
     def collate_fn_pooled_tokens(data):
         input_ids = [data[i][0] for i in range(len(data))]
@@ -148,4 +149,13 @@ class BertClassifierWithPooling(BertClassifier):
         else:
             labels = Tensor([data[i][2] for i in range(len(data))])
             collated = [input_ids, attention_mask, labels]
+        return collated
+    """
+
+    @staticmethod
+    def collate_fn_pooled_tokens(data):
+        input_ids = [item[0] for item in data]
+        attention_mask = [item[1] for item in data]
+        labels = [item[2] for item in data]
+        collated = [input_ids, attention_mask, labels]
         return collated
