@@ -119,18 +119,15 @@ class BertClassifier(ABC):
 
         for step, batch in enumerate(dataloader):
             optimizer.zero_grad()
-            #labels = batch[-1].float().cpu()
-            input_ids = batch[0].to(self.device)
-            attention_mask = batch[1].to(self.device)
-            labels = batch[2].long().to(self.device)
-            predictions = self._evaluate_single_batch(input_ids, attention_mask)
+            labels = batch[-1].float().cpu()
+            predictions = self._evaluate_single_batch(batch)
 
             loss = cross_entropy(predictions, labels)
             loss.backward()
             optimizer.step()
 
     @abstractmethod
-    def _evaluate_single_batch(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
+    def _evaluate_single_batch(self, batch: tuple[Tensor]) -> Tensor:
         pass
 
     def save(self, model_dir: str) -> None:

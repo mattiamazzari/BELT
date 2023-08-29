@@ -97,8 +97,9 @@ class BertClassifierWithPooling(BertClassifier):
         )
         return tokens
 
-    def _evaluate_single_batch(self, input_ids: Tensor, attention_mask: Tensor) -> Tensor:
-
+    def _evaluate_single_batch(self, batch: tuple[Tensor]) -> Tensor:
+        input_ids = batch[0]
+        attention_mask = batch[1]
         number_of_chunks = [len(x) for x in input_ids]
 
         # concatenate all input_ids into one batch
@@ -138,7 +139,6 @@ class BertClassifierWithPooling(BertClassifier):
 
         return pooled_preds
 
-    """
     @staticmethod
     def collate_fn_pooled_tokens(data):
         input_ids = [data[i][0] for i in range(len(data))]
@@ -148,13 +148,4 @@ class BertClassifierWithPooling(BertClassifier):
         else:
             labels = Tensor([data[i][2] for i in range(len(data))])
             collated = [input_ids, attention_mask, labels]
-        return collated
-    """
-
-    @staticmethod
-    def collate_fn_pooled_tokens(data):
-        input_ids = [item[0] for item in data]
-        attention_mask = [item[1] for item in data]
-        labels = [item[2] for item in data]
-        collated = [input_ids, attention_mask, labels]
         return collated
