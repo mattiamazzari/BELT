@@ -156,7 +156,7 @@ class BertClassifier(ABC):
 
 
 class BertClassifierNN(Module):
-    def __init__(self, model: Union[BertModel, RobertaModel], num_classes: int = 3):
+    def __init__(self, model: Union[BertModel, RobertaModel], num_classes: int = 1):
         super().__init__()
         self.model = model
 
